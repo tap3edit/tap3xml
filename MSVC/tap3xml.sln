@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tap3xml", "tap3xml.vcproj", "{13304E22-F3CA-4E0A-A569-6BABFAF85864}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nrt2xml", "..\n2x\nrt2xml\nrt2xml.vcproj", "{50B11A9B-6C9C-4DF5-846E-C6DCD85CA270}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{13304E22-F3CA-4E0A-A569-6BABFAF85864}.Debug|Win32.ActiveCfg = Release|Win32
+		{13304E22-F3CA-4E0A-A569-6BABFAF85864}.Debug|Win32.Build.0 = Release|Win32
+		{13304E22-F3CA-4E0A-A569-6BABFAF85864}.Release|Win32.ActiveCfg = Release|Win32
+		{13304E22-F3CA-4E0A-A569-6BABFAF85864}.Release|Win32.Build.0 = Release|Win32
+		{50B11A9B-6C9C-4DF5-846E-C6DCD85CA270}.Debug|Win32.ActiveCfg = Release|Win32
+		{50B11A9B-6C9C-4DF5-846E-C6DCD85CA270}.Debug|Win32.Build.0 = Release|Win32
+		{50B11A9B-6C9C-4DF5-846E-C6DCD85CA270}.Release|Win32.ActiveCfg = Release|Win32
+		{50B11A9B-6C9C-4DF5-846E-C6DCD85CA270}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

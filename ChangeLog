@@ -1,0 +1,170 @@
+2012.04.01 00:00  Javier Gutierrez
+
+    * Improved: Now ASN.1 encoded input file is read only once
+
+    * Improved: implemented atoi64() instead of strtoi64() on Windows.
+
+    * Improved: Better error report
+
+	* Improved: Updated TAP3.12 specs to TD57.32.31
+
+    * Fixed: Better memory release
+
+    * Fixed: Avoid code injection in XML and ASN.1 specs.
+
+    New release 0.18
+
+2012.01.02 00:00  Javier Gutierrez
+
+    * Improved: Specifications are searched now also in the path of the binary
+    and in the PATH environment varialble
+
+    * Improved: Encoding of big integers now is supported (Thanks Pablo)
+
+    * Improved: TAP3.12 and RAP1.05 Specfications was added
+
+    * Improved: TAP3.10/11 and NRTRDE updated with latest Specifications
+
+    * Fixed: Fixed core dump when trying to read beyond end of the file
+    (Thanks Biljana)
+
+    New release 0.17
+
+2011.03.24 00:00  Javier Gutierrez
+
+    * Improved: Removed the filler ('f') when coverting BCD strings (suggested 
+    by Zeljko)
+
+    * Improved: Removed some warnings from gcc and from MSVS (Thanks Zeljko)
+
+    * Fixed: Decoding of big integers was giving negative values (Thanks Zeljko)
+
+    * Fixed: Windows binaries were inverted, tap3xml.exe was nrt2xml.exe and 
+    nrt2xml.exe was tap3xml.exe (Thanks Zeljko)
+
+    New release 0.16
+
+2011.03.01 00:00  Javier Gutierrez
+
+    * Fixed: Segmentation Fault when converting a NRTRDE file from XML back to 
+    ASN.1 (Thanks Manish)
+
+    * Improved: Removed the flex skeleton since it was too old and wasn't working 
+    with new versions of flex. Included parsers generated with the latest 
+    version of flex.
+
+    New release 0.15
+
+2007.11.10 00:00  Javier Gutierrez
+
+    * Added: NRTRDE encoding/decoding separate program.
+
+    * Fixed: Check if root node has tag id. DataInterChange has no own tag but
+    Nrtrde has.
+
+    * Fixed: Solved problem when tag id is 0x1F
+
+    * Improved: Now the XML Header is set in main program.
+
+    New release 0.13
+
+2007.07.16 00:00  Javier Gutierrez
+
+    * Fixed: Now for the length of every tag, 4 bytes (whole integer) is taken
+    and not 3 anymore
+
+    * Improved: Solved some warnings when compiling
+
+    New release 0.12
+
+2007.07.01 00:00  Javier Gutierrez
+
+    * Fixed: Solved some memory leaks which caused the program to break for 
+    big files. This should improve spead too in some cases.
+
+    * Fixed: Now XML file is not opened until the ASN has been totally decoded
+
+    * Improved: 50% faster when converting XML->ASN1. Now a 1.5 Gb xml file 
+    will be converted in 30 mins instead of 1 hour.
+
+    New release 0.11
+
+2007.06.16 00:00  Javier Gutierrez
+
+    * Fixed: Wrong check when encoding asn.1 size, 24 bits instead of 32 
+    Check disabled anyway since makes no sense (Thanks Mr.Baier)
+
+    * Improved: Now when converting to XML and if output file not especified, 
+    the output is shown to the screen. The file.xml should be now specified 
+    as output file and will not be created automatically
+
+    * Report: The indentation of the XML files is by 4 spaces now and not TAB 
+    anymore. Old files with TAB can be still be readed normally
+
+    New release 0.10
+
+2007.06.05 00:00  Javier Gutierrez
+
+    * Fixed: Bug when collecting indefinite lengths (Thanks Ismael)
+
+    * Fixed: Bug when value was empty (Thanks Irving and Ismael)
+
+    * Improved: Code format tabs replaced by blanks
+
+    New release 0.09
+
+2006.10.21 00:00  Javier Gutierrez
+
+    * Fixed: BCD numbers with uneven length where encoded wrong. E.g. 12125 
+    was encoded 121205 instead of 12125f (Thanks Jerry)
+
+    New release 0.08
+
+2006.07.10 00:00  Javier Gutierrez
+
+    * Fixed: Added ";" to the metacharacters like "&amp" or "&gt" (Thanks 
+    Ismael)
+
+    New release 0.07
+
+2006.05.10 00:00  Javier Gutierrez
+
+    * Fixed: Solved problem identifying XML Acknowledgment files (Thanks Ismael)
+
+    New release 0.06
+
+2006.05.10 00:00  Javier Gutierrez
+
+    * Fixed: When Version of tap file in the rap file is not provided, 
+    we decode with default values. This time also for ASN.1 files. (Thanks 
+    Ismael)
+
+    New release 0.05
+
+2006.05.05 00:00  Javier Gutierrez
+
+    * Fixed: When Version of tap file in the rap file is not provided, 
+    we decode with default values. Only for XML Files (Thanks Ismael)
+
+    New release 0.04
+
+2005.11.18 00:00  Javier Gutierrez
+
+    * Fixed: when tag has just blanks.
+
+    New release 0.03
+
+2005.11.13 00:00  Javier Gutierrez
+
+    * Fixed: now if output file is omitted, the input file is used with 
+    extension .xml or .asn according to the conversion.
+
+    * Fixed: Integers are now encoded and decoded correctly (thanks Assad)
+
+    New release 0.02
+
+2005.11.13 00:00  Javier Gutierrez
+
+    * Report: Initial version
+
+    New release 0.01

@@ -1,0 +1,255 @@
+%{
+/******************************************************************************
+|*
+|* tap3xml: both directions XML<->TAP3 Converter.
+|*
+|* $Id: xml_parser.ypp,v 1.11 2012/04/15 11:49:47 javier Exp $
+|*
+|* tap3edit Tools (http://www.tap3edit.com)
+|*
+|* Copyright (C) 2007  Javier Gutierrez. All rights reserved.
+|* email address <jgutierrez@tap3edit.com>
+|*
+|* This program is free software; you can redistribute it and/or
+|* modify it under the terms of the GNU General Public License
+|* as published by the Free Software Foundation; either version 2
+|* of the License, or (at your option) any later version.
+|*
+|* This program is distributed in the hope that it will be useful,
+|* but WITHOUT ANY WARRANTY; without even the implied warranty of
+|* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+|* GNU General Public License for more details.
+|*
+|* You should have received a copy of the GNU General Public License
+|* along with this program; if not, write to the Free Software
+|* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+|*
+|*
+|* Module: xml_parser.ypp
+|*
+|* Description:
+|*
+|* Author: Javier Gutierrez (JG)
+|*
+|* Modifications:
+|*
+|* When         Who     Pos.    What
+|* 20050909     JG              Initial version
+|* 20070605     JG      _001_   Value instead of NULL should be "" to avoid crash
+|*
+******************************************************************************/
+
+
+/* 1. Header ******************************************************************/
+
+#define _CRT_SECURE_NO_WARNINGS
+
+#include <stdio.h>
+#include <iostream>
+#include <string.h>
+#include <string>
+#include "global.h"
+
+using namespace std;
+
+int xmllex();
+int xmlparse();
+void xmlerror(const char *str);
+int xmlwrap();
+treenode *make_parent(char *tagname, treenode *child);
+treenode *make_child(char *tagname, char *str);
+
+treenode *rootnode;
+
+
+%}
+
+
+/* 2. Definitions *************************************************************/
+
+
+%union {
+  char          str[MAXXMLVALUELEN];
+  int           numval;
+  treenode*     tree;
+} ;
+
+
+
+%token              PROLOG 
+%token              GRT 
+%token              LSS 
+%token              LSS_SLSH 
+%token  <str>       WORD
+
+%type   <str>       tag_open
+%type   <str>       value
+%type   <tree>      xml_item
+%type   <tree>      xml_content
+%type   <tree>      xml
+
+%%
+
+
+/* 3. Rules *******************************************************************/
+
+
+/* 3.1. */
+
+program: 
+    /* empty rule */
+    | program list
+    ;
+
+
+/* 3.2. */
+
+list:
+    PROLOG 
+    | WORD 
+    | xml 
+    {
+        rootnode = $1;
+    }
+    ;
+
+
+/* 3.3. */
+xml:
+    tag_open xml_content tag_close 
+    {
+        $$ = make_parent($1, $2);
+    }
+    ;
+
+
+/* 3.4. */
+
+xml_content:
+    xml_item
+    {
+        treenode*   parent =    new treenode();
+
+        parent->pc=1;
+        parent->tag_d=0;
+        parent->size_d=0;
+        parent->children=new vector<treenode *>();
+        parent->children->push_back($1);
+        $$=parent;
+    }
+    | xml_content xml_item 
+    {
+
+        $1->children->push_back($2);
+
+        $$ = $1;
+    }
+    ;
+
+
+/* 3.5. */
+
+xml_item:
+    tag_open xml_content tag_close
+    {
+        $$ = make_parent($1, $2);
+    }
+    |tag_open value    tag_close
+    {
+        $$ = make_child($1, $2);
+    }
+    |tag_open tag_close
+    {
+        $$ = make_child($1, NULL);
+    }
+    ;
+
+
+/* 3.6. */
+
+tag_open:
+    LSS WORD GRT
+    {
+        /* Note: For the moment we will ignore the attributes */
+        strcpy($$,((string($2)).substr(0,(string($2)).find(" "))).c_str());
+
+    }
+    ;
+
+
+/* 3.7. */
+
+tag_close:
+    LSS_SLSH WORD GRT
+    ;
+
+
+/* 3.8. */
+
+value:
+    WORD
+    ;
+
+%%
+
+
+/* 4. Subrutines **************************************************************/
+
+
+treenode *make_child(char *c_tagname, char *str)
+{
+
+
+    /* Let's make a child :) */
+
+    treenode*       child =     new treenode();
+    extern string   remove_xml_rules(string str);
+    string          tagname(c_tagname);
+
+    child->pc=0;
+    child->tag_d=0;
+    child->size_d=0;
+    child->children=NULL;
+    child->tagname=tagname;
+    if (str != NULL)
+    {
+        child->value=new string(str);
+        *child->value=remove_xml_rules(*child->value);
+    }
+    /* _001_ { */
+    else
+        child->value=new string("");
+    /* _001_ } */
+
+
+    return child;
+
+}
+
+
+treenode *make_parent(char *c_tagname, treenode *child)
+{
+    string          tagname(c_tagname);
+
+
+    if (!child->tagname.size())
+    {
+        child->tagname=tagname;
+
+        return child;
+    }
+    else
+    {
+        treenode*   parent =    new treenode();
+
+        parent->pc=1;
+        parent->tag_d=0;
+        parent->size_d=0;
+        parent->tagname=tagname;
+        parent->children=new vector<treenode *>();
+        parent->children->push_back(child);
+
+        return parent;
+    }
+
+}

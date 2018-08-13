@@ -1,0 +1,395 @@
+%{
+/******************************************************************************
+|*
+|* tap3xml: both directions XML<->TAP3 Converter.
+|*
+|* $Id: asn1_parser.ypp,v 1.14 2012/04/15 11:49:46 javier Exp $
+|*
+|* tap3edit Tools (http://www.tap3edit.com)
+|*
+|* Copyright (C) 2007  Javier Gutierrez. All rights reserved.
+|* email address <jgutierrez@tap3edit.com>
+|*
+|* This program is free software; you can redistribute it and/or
+|* modify it under the terms of the GNU General Public License
+|* as published by the Free Software Foundation; either version 2
+|* of the License, or (at your option) any later version.
+|*
+|* This program is distributed in the hope that it will be useful,
+|* but WITHOUT ANY WARRANTY; without even the implied warranty of
+|* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+|* GNU General Public License for more details.
+|*
+|* You should have received a copy of the GNU General Public License
+|* along with this program; if not, write to the Free Software
+|* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+|*
+|*
+|* Module: asn1_parser.ypp
+|*
+|* Description:
+|*
+|* Author: Javier Gutierrez (JG)
+|*
+|* Modifications:
+|*
+|* When         Who     Pos.    What
+|* 20050909     JG              Initial version
+|*
+|*
+******************************************************************************/
+
+#pragma warning(disable: 4786) /* To clean compile under MSVC */
+
+#define _CRT_SECURE_NO_WARNINGS
+
+#include <iostream>
+#include <string>
+#include "global.h"
+
+#include <stdio.h>
+
+
+using namespace std;
+
+#define YYDEBUG 1
+
+
+map<string,tagtype_s *>        *spec_tree;
+
+
+int asn1parse();
+int asn1lex();
+int asn1wrap();
+void asn1error(const char *str);
+
+%}
+
+%union {
+    char                    str[MAXXMLVALUELEN];
+    int                     num;
+    tagtype_s*              tagtype;
+    tagelem_s*              tagelem;
+    vector<tagelem_s *>*    vect;
+}
+
+%error-verbose
+
+%token <str> WORD 
+%token <num> CLASS
+%token ELIPSYS LBRACE RBRACE ASSIGN COMMA SEQUENCE OF OPTIONAL CHOICE BGN END DEFINITIONS IMPLICIT TAGS IMPORTS FROM SEMICOLON
+
+%type  <tagtype>    simple_item
+%type  <tagtype>    complex_item
+%type  <tagtype>    seqof_item
+%type  <tagtype>    seq_item
+%type  <tagtype>    choice_item
+%type  <tagelem>    list_item_opt
+%type  <tagelem>    list_item
+%type  <vect>     list
+%type  <vect>     list_opt
+%type  <vect>     list_items
+%type  <vect>     list_items_opt
+
+
+%%
+
+
+program: 
+    commands
+    ;
+
+
+commands: 
+    block
+    | commands block
+    ;
+
+block:
+    WORD DEFINITIONS IMPLICIT TAGS ASSIGN
+    | IMPORTS wordlist
+    | FROM WORD SEMICOLON
+    | BGN
+    | choice_item list    
+    {
+        $1->children=$2;
+        (*spec_tree)[$1->type_name]=$1;
+    }
+    | seq_item list_opt
+    {
+        $1->children=$2;
+        (*spec_tree)[$1->type_name]=$1;
+    }
+    | seqof_item
+    {
+        (*spec_tree)[$1->type_name]=$1;
+    }
+    | complex_item
+    {
+        (*spec_tree)[$1->type_name]=$1;
+    }
+    | simple_item     
+    {
+        (*spec_tree)[$1->type_name]=$1;
+    }
+    | END
+    ;
+
+wordlist:
+    WORD
+    | wordlist COMMA WORD
+    ;
+
+choice_item:
+    WORD ASSIGN CHOICE
+    {
+        tagtype_s *tagtype=new tagtype_s();
+        tagtype->type_name=$1;
+        tagtype->action=choice;
+        tagtype->checked=false;
+        tagtype->children=NULL;
+        tagtype->tagid=0;
+
+        $$=tagtype;
+    }
+    | WORD ASSIGN CLASS CHOICE
+    {
+        tagtype_s *tagtype=new tagtype_s();
+        tagtype->type_name=$1;
+        tagtype->tagid=$3;
+        tagtype->action=choice;
+        tagtype->checked=false;
+        tagtype->children=NULL;
+
+        $$=tagtype;
+    }
+    ;
+
+list:
+    LBRACE list_items RBRACE    
+    {
+        $$=$2;
+    }
+    ;
+
+seq_item:
+    WORD ASSIGN CLASS SEQUENCE
+    {
+        tagtype_s *tagtype=new tagtype_s();
+        tagtype->type_name=$1;
+        tagtype->tagid=$3;
+        tagtype->action=sequence;
+        tagtype->checked=false;
+        tagtype->children=NULL;
+
+        $$=tagtype;
+    }
+    | WORD ASSIGN SEQUENCE    
+    {
+        tagtype_s *tagtype=new tagtype_s();
+        tagtype->type_name=$1;
+        tagtype->action=sequence;
+        tagtype->checked=false;
+        tagtype->children=NULL;
+        tagtype->tagid=0;
+
+        $$=tagtype;
+    }
+    ;
+
+list_opt:
+    LBRACE list_items_opt RBRACE
+    {
+        $$=$2;
+    }
+    ;
+
+list_items:
+    list_item
+    {
+        if ($1!=NULL)
+        {
+            vector<tagelem_s *> *children=new vector<tagelem_s *>;
+            children->push_back($1);
+            $$=children;
+        }
+        else
+        {
+            $$=NULL;
+        }
+    }
+    | list_items list_item
+    {
+        if ($1!=NULL)
+        {
+            if ($2!=NULL)
+            {
+                $1->push_back($2);
+            }
+            $$=$1;
+        }
+        else
+        {
+            if ($2!=NULL)
+            {
+                vector<tagelem_s *> *children=new vector<tagelem_s *>;
+                children->push_back($2);
+                $$=children;
+            }
+            else
+            {
+                $$=NULL;
+            }
+        }
+    }
+    ;
+
+list_item:
+    WORD WORD
+    {
+        tagelem_s *tagelem=new tagelem_s();
+        tagelem->elem_name=$1;
+        tagelem->elem_type=$2;
+        tagelem->optional=false;
+        tagelem->elem_type_p=NULL;
+
+        $$=tagelem;
+    }
+    | WORD WORD COMMA
+    {
+        tagelem_s *tagelem=new tagelem_s();
+        tagelem->elem_name=$1;
+        tagelem->elem_type=$2;
+        tagelem->optional=false;
+        tagelem->elem_type_p=NULL;
+
+        $$=tagelem;
+    }
+    | ELIPSYS {$$=NULL;}
+    | ELIPSYS COMMA {$$=NULL;}
+    ;
+
+list_items_opt:
+    list_item_opt
+    {
+        if ($1!=NULL)
+        {
+            vector<tagelem_s *> *children=new vector<tagelem_s *>;
+            children->push_back($1);
+            $$=children;
+        }
+        else
+        {
+            $$=NULL;
+        }
+    }
+    | list_items_opt list_item_opt
+    {
+        if ($1!=NULL)
+        {
+            if ($2!=NULL)
+            {
+                $1->push_back($2);
+            }
+            $$=$1;
+        }
+        else
+        {
+            if ($2!=NULL)
+            {
+                vector<tagelem_s *> *children=new vector<tagelem_s *>;
+                children->push_back($2);
+                $$=children;
+            }
+            else
+            {
+                $$=NULL;
+            }
+        }
+    }
+    ;
+
+list_item_opt:
+    list_item
+    | WORD WORD OPTIONAL
+    {
+        tagelem_s *tagelem=new tagelem_s();
+        tagelem->elem_name=$1;
+        tagelem->elem_type=$2;
+        tagelem->optional=true;
+        tagelem->elem_type_p=NULL;
+
+        $$=tagelem;
+    }
+    | WORD WORD OPTIONAL COMMA
+    {
+        tagelem_s *tagelem=new tagelem_s();
+        tagelem->elem_name=$1;
+        tagelem->elem_type=$2;
+        tagelem->optional=true;
+        tagelem->elem_type_p=NULL;
+
+        $$=tagelem;
+    }
+    ;
+    
+
+seqof_item:
+    WORD ASSIGN CLASS SEQUENCE OF WORD
+    {
+        tagelem_s *tagelem=new tagelem_s();
+
+        tagelem->elem_name=$6;
+        tagelem->elem_type=$6;
+        tagelem->optional=false;
+        tagelem->elem_type_p=NULL;
+
+        vector<tagelem_s *> *children=new vector<tagelem_s *>;
+        children->push_back(tagelem);
+
+
+        tagtype_s *tagtype=new tagtype_s();
+
+        tagtype->type_name=$1;
+        tagtype->tagid=$3;
+        tagtype->action=sequenceof;
+        tagtype->checked=false;
+        tagtype->children=children;
+
+        $$=tagtype;
+    }
+    ;
+
+complex_item:
+    WORD ASSIGN CLASS WORD
+    {
+        tagtype_s *tagtype=new tagtype_s();
+
+        tagtype->type_name=$1;
+        tagtype->type_type=$4;
+        tagtype->tagid=$3;
+        tagtype->action=simpletype;
+        tagtype->checked=false;
+        tagtype->children=NULL;
+
+        $$=tagtype;
+    }
+    ;
+
+simple_item:
+    WORD ASSIGN WORD
+    {
+        tagtype_s *tagtype=new tagtype_s();
+
+        tagtype->type_name=$1;
+        tagtype->type_type=$3;
+        tagtype->action=simpletype;
+        tagtype->checked=false;
+        tagtype->children=NULL;
+        tagtype->tagid=0;
+
+        $$=tagtype;
+    }
+    ;
+
+%%
