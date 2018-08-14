@@ -4,11 +4,13 @@ tap3xml & nrt2mxl: both directions XML<->TAP3 and XML<->NRT Converters.
 
 INSTALLATION
 
-A compiled version for the Windows (tap3xml.exe, nrt2xml.exe) and Linux 
-(tap3xml, nrt2xml) platforms is delivered with the package. If you are using 
-a different operating system you might want to compile and create a version 
-of the package for your own platform. The sources should always be included 
-within this package.
+Compile and create a version of the package for your platform. Place the
+generated binaries in any directory and set the PATH to point to it.
+
+The compilation has two steps:
+
+    make parsers
+    make 
 
 Normally the package doesn't need the flex libraries, but in case of a problem
 when compiling you can try enabling this feauture in following way: edit the
@@ -74,36 +76,33 @@ tap3xml -x|-a inputfile [outputfile]
 
 BUGS
 
-Please report bugs to <jgutierrez@tap3edit.com>
+Please report bugs under https://github.com/tap3edit/tap3xml
 I have tested tap3xml on many Tap and Rap files but unfortunately I did not 
 have the change to test the conversion XML->TAP3 with other parties XML files.
 
 
 IDEAS
 
-You can send your comment/ideas about this tool or others on www.tap3edit.com 
-to <jgutierrez@tap3edit.com>
+Please let me know about any comment/ideas about this tool or others on
+https://github.com/tap3edit
 
 
 LICENSE
 
-Copyright (C) 2007-2012  Javier Gutierrez. All rights reserved.
-email address <jgutierrez@tap3edit.com>
+Copyright (C) 2005-2018  Javier Gutierrez. All rights reserved.
+email address <https://github.com/tap3edit/tap3xml>
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  
-02110-1301, USA.
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 This program contains TAP and RAP ASN.1 Specification. The
 ownership of the TAP/RAP ASN.1 Specifications belong to

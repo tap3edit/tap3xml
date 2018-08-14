@@ -1,3 +1,14 @@
+2012.08.13 00:00  Javier Gutierrez
+
+    * Report: Adaption for GitHub
+
+    * Report: Changed license from GNU to free
+
+    * Improved: Added parsers to the source distribution. No need to run "make
+	parsers" the first time
+
+    New release 0.19
+
 2012.04.01 00:00  Javier Gutierrez
 
     * Improved: Now ASN.1 encoded input file is read only once
